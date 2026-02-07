@@ -12,6 +12,34 @@ if (!supabaseUrl || !supabaseKey) {
 
 export const supabase = createClient(supabaseUrl || '', supabaseKey || '');
 
+// Helper: convert camelCase keys to snake_case recursively
+function toSnake(obj: any): any {
+  if (obj === null || obj === undefined) return obj;
+  if (Array.isArray(obj)) return obj.map(toSnake);
+  if (typeof obj !== 'object') return obj;
+  const out: any = {};
+  for (const key of Object.keys(obj)) {
+    const val = obj[key];
+    const snakeKey = key.replace(/([A-Z])/g, (m) => `_${m.toLowerCase()}`);
+    out[snakeKey] = toSnake(val);
+  }
+  return out;
+}
+
+// Helper: convert snake_case keys to camelCase recursively
+function toCamel(obj: any): any {
+  if (obj === null || obj === undefined) return obj;
+  if (Array.isArray(obj)) return obj.map(toCamel);
+  if (typeof obj !== 'object') return obj;
+  const out: any = {};
+  for (const key of Object.keys(obj)) {
+    const val = obj[key];
+    const camelKey = key.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+    out[camelKey] = toCamel(val);
+  }
+  return out;
+}
+
 // ============ USER OPERATIONS ============
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
@@ -22,39 +50,56 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
     .single();
 
   if (error) {
-    console.error('Error fetching user:', error);
+    console.error('Error fetching user:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
     return null;
   }
-  return data;
+  return toCamel(data) as UserProfile;
 }
 
 export async function createUserProfile(user: UserProfile): Promise<UserProfile | null> {
+  const payload = toSnake(user);
   const { data, error } = await supabase
     .from('users')
-    .insert([user])
+    .insert([payload])
     .select()
     .single();
 
   if (error) {
-    console.error('Error creating user:', error);
+    console.error('Error creating user:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
     return null;
   }
-  return data;
+  return toCamel(data) as UserProfile;
 }
 
 export async function updateUserProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile | null> {
+  const payload = toSnake(updates as any);
   const { data, error } = await supabase
     .from('users')
-    .update(updates)
+    .update(payload)
     .eq('id', userId)
     .select()
     .single();
 
   if (error) {
-    console.error('Error updating user:', error);
+    console.error('Error updating user:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
     return null;
   }
-  return data;
+  return toCamel(data) as UserProfile;
 }
 
 // ============ COURSE OPERATIONS ============
