@@ -25,34 +25,54 @@ export async function signUp(
     }
 
     // Create user profile in database
-    const newUser: UserProfile = {
+    const newUserData = {
       id: authData.user.id,
       name,
       email,
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name.replace(/\s+/g, '')}`,
-      language: Language.EN,
-      walletAddress: '',
-      totalPoints: 0,
-      weeklyPoints: 0,
+      language: 'en',
+      wallet_address: '',
+      total_points: 0,
+      weekly_points: 0,
       badges: [],
       streak: 0,
-      lastActiveDate: new Date().toISOString(),
-      srsData: {},
-      sbtCredentials: [],
+      last_active_date: new Date().toISOString(),
+      srs_data: {},
+      sbt_credentials: [],
     };
 
-    const { data: profileData, error: profileError } = await supabase
+    const { error: profileError } = await supabase
       .from('users')
-      .insert([newUser])
-      .select()
-      .single();
-
+      .insert([newUserData]);
+    
     if (profileError) {
-      console.error('Error creating profile:', profileError);
-      return { user: null, error: 'Failed to create user profile' };
+      console.error('Supabase Error Details:', {
+        message: profileError.message,
+        code: profileError.code,
+        details: profileError.details,
+        hint: profileError.hint
+      });
+      return { user: null, error: profileError.message || 'Failed to create user profile' };
     }
 
-    return { user: profileData, error: null };
+    // Convert snake_case to camelCase for the app
+    const newUser: UserProfile = {
+      id: newUserData.id,
+      name: newUserData.name,
+      email: newUserData.email,
+      avatar: newUserData.avatar,
+      language: Language.EN,
+      walletAddress: newUserData.wallet_address,
+      totalPoints: newUserData.total_points,
+      weeklyPoints: newUserData.weekly_points,
+      badges: newUserData.badges,
+      streak: newUserData.streak,
+      lastActiveDate: newUserData.last_active_date,
+      srsData: newUserData.srs_data,
+      sbtCredentials: newUserData.sbt_credentials,
+    };
+
+    return { user: newUser, error: null };
   } catch (error: any) {
     return { user: null, error: error.message || 'Unknown error' };
   }
@@ -91,7 +111,24 @@ export async function signIn(
       return { user: null, error: 'Failed to load user profile' };
     }
 
-    return { user: profileData, error: null };
+    // Convert snake_case to camelCase for the app
+    const user: UserProfile = profileData ? {
+      id: profileData.id,
+      name: profileData.name,
+      email: profileData.email,
+      avatar: profileData.avatar,
+      language: profileData.language === 'np' ? Language.NP : Language.EN,
+      walletAddress: profileData.wallet_address,
+      totalPoints: profileData.total_points,
+      weeklyPoints: profileData.weekly_points,
+      badges: profileData.badges,
+      streak: profileData.streak,
+      lastActiveDate: profileData.last_active_date,
+      srsData: profileData.srs_data,
+      sbtCredentials: profileData.sbt_credentials,
+    } : null;
+
+    return { user, error: null };
   } catch (error: any) {
     return { user: null, error: error.message || 'Unknown error' };
   }
