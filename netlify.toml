@@ -1,18 +1,9 @@
-{
-  "build": {
-    "command": "npm run build",
-    "functions": "netlify/functions",
-    "publish": "dist"
-  },
-  "env": {
-    "VITE_SUPABASE_URL": {
-      "description": "Supabase project URL"
-    },
-    "VITE_SUPABASE_ANON_KEY": {
-      "description": "Supabase anonymous key"
-    },
-    "VITE_GEMINI_API_KEY": {
-      "description": "Google Gemini API key"
-    }
-  }
-}
+[build]
+command = "npm run build"
+functions = "netlify/functions"
+publish = "dist"
+
+[env]
+VITE_SUPABASE_URL = { description = "Supabase project URL" }
+VITE_SUPABASE_ANON_KEY = { description = "Supabase anonymous key" }
+VITE_GEMINI_API_KEY = { description = "Google Gemini API key" }
