@@ -219,13 +219,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess, onForgotPassw
               </p>
             </div>
           </form>
-
-          {/* Demo account note */}
-          <div className="mt-6 pt-6 border-t border-slate-200">
-            <p className="text-xs text-slate-500 text-center">
-              💡 <strong>Demo Mode:</strong> Use test credentials during development
-            </p>
-          </div>
         </div>
       </div>
     </div>
