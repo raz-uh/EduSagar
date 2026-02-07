@@ -1,0 +1,7 @@
+{
+  "name": "EduSagar Nepal",
+  "description": "A cutting-edge multilingual e-learning platform for Nepal, featuring AI-powered course generation, Web3 token rewards (EDUToken), and gamified learning tracking.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
